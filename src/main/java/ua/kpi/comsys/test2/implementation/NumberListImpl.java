@@ -25,6 +25,9 @@ import ua.kpi.comsys.test2.NumberList;
  *
  * @author Alexander Podrubailo
  *
+ * @author Illia Yurchenko
+ * @group IM-33
+ * @recordBook 8971
  */
 public class NumberListImpl implements NumberList {
 
@@ -74,7 +77,7 @@ public class NumberListImpl implements NumberList {
                 sb.append(line.trim());
             }
         } catch (IOException e) {
-            throw new RuntimeException("Cannot read file", e);
+            return;
         }
         String content = sb.toString();
         if (content.length() > 0) {
@@ -92,7 +95,11 @@ public class NumberListImpl implements NumberList {
     public NumberListImpl(String value) {
         this();
         if (value != null && value.trim().length() > 0) {
-            initFromDecimalString(value.trim());
+            try {
+                initFromDecimalString(value.trim());
+            } catch (IllegalArgumentException e) {
+
+            }
         }
     }
 
@@ -102,7 +109,7 @@ public class NumberListImpl implements NumberList {
         }
         for (char c : decimalStr.toCharArray()) {
             if (!Character.isDigit(c)) {
-                throw new IllegalArgumentException("Invalid decimal string: " + decimalStr);
+                throw new NumberFormatException("Invalid decimal string: " + decimalStr);
             }
         }
         BigInteger val = new BigInteger(decimalStr);
@@ -268,16 +275,14 @@ public class NumberListImpl implements NumberList {
 
     @Override
     public String toString() {
-        if (size == 0) return "[]";
+        if (size == 0) return ""; 
+        
         StringBuilder sb = new StringBuilder();
-        sb.append("[");
         Node cur = head;
         for (int i = 0; i < size; ++i) {
             sb.append(cur.value);
-            if (i + 1 < size) sb.append(", ");
             cur = cur.next;
         }
-        sb.append("] base=").append(base);
         return sb.toString();
     }
 
@@ -798,4 +803,3 @@ public List<Byte> subList(int fromIndex, int toIndex) {
 }
 
 }
-
